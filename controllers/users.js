@@ -1,67 +1,33 @@
 const User = require('../models/user');
 
-const BAD_REQUEST = 400;
-const NOT_FOUND = 404;
-const INTERNAL_SERVER_ERROR = 500;
-
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch(() => {
-      res.status(INTERNAL_SERVER_ERROR).send({
-        message: 'Ocorreu um erro no servidor',
-      });
-    });
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail()
     .then((user) => {
       res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({
-          message: 'ID do usuário inválido',
-        });
-      }
-
-      if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({
-          message: 'Usuário não encontrado',
-        });
-      }
-
-      return res.status(INTERNAL_SERVER_ERROR).send({
-        message: 'Ocorreu um erro no servidor',
-      });
-    });
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
     .then((user) => {
       res.status(201).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({
-          message: 'Dados de usuário inválidos',
-        });
-      }
-
-      return res.status(INTERNAL_SERVER_ERROR).send({
-        message: 'Ocorreu um erro no servidor',
-      });
-    });
+    .catch(next);
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -76,26 +42,10 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => {
       res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({
-          message: 'Dados de usuário inválidos',
-        });
-      }
-
-      if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({
-          message: 'Usuário não encontrado',
-        });
-      }
-
-      return res.status(INTERNAL_SERVER_ERROR).send({
-        message: 'Ocorreu um erro no servidor',
-      });
-    });
+    .catch(next);
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -110,21 +60,5 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => {
       res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({
-          message: 'Dados de usuário inválidos',
-        });
-      }
-
-      if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({
-          message: 'Usuário não encontrado',
-        });
-      }
-
-      return res.status(INTERNAL_SERVER_ERROR).send({
-        message: 'Ocorreu um erro no servidor',
-      });
-    });
+    .catch(next);
 };
